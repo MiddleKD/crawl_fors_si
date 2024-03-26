@@ -1,6 +1,5 @@
 import re
 import time
-import subprocess
 
 import pandas as pd
 from webdriver_manager.chrome import ChromeDriverManager
@@ -8,33 +7,6 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
-
-def get_chrome_version():
-    try:
-        # macOS 및 Linux의 경우
-        result = subprocess.run(['google-chrome', '--version'], stdout=subprocess.PIPE)
-        version_output = result.stdout.decode('utf-8')
-        
-        # 정규 표현식을 사용하여 버전 정보 추출
-        version_match = re.search(r'(\d+\.\d+\.\d+\.\d+)', version_output)
-        if version_match:
-            return version_match.group(1)
-        else:
-            return "버전 정보를 찾을 수 없습니다."
-    except FileNotFoundError:
-        try:
-            # Windows의 경우
-            result = subprocess.run(['chrome', '--version'], stdout=subprocess.PIPE)
-            version_output = result.stdout.decode('utf-8')
-            
-            # 정규 표현식을 사용하여 버전 정보 추출
-            version_match = re.search(r'(\d+\.\d+\.\d+\.\d+)', version_output)
-            if version_match:
-                return version_match.group(1)
-            else:
-                return "버전 정보를 찾을 수 없습니다."
-        except FileNotFoundError:
-            return "Google Chrome이 시스템에 설치되어 있지 않습니다."
 
 def open_query_file(file_path):
     with open(file_path, "r") as f:
@@ -51,36 +23,15 @@ def list_to_excel(data_list, output_fn):
 class CrawlManager:
     def __init__(self):
         pass
-
-    def is_newer_version(self, current_version, compared_version):
-        current_version_numbers = list(map(int, current_version.split('.')))
-        compared_version_numbers = list(map(int, compared_version.split('.')))
-
-        for i in range(len(current_version_numbers)):
-            if current_version_numbers[i] > compared_version_numbers[i]:
-                return True
-            elif current_version_numbers[i] < compared_version_numbers[i]:
-                return False
-
-        return False
     
-    def call_driver(self, current_chrome_version, invisible=True):
-        latest_old_driver_version = "114.0.5735.90"
-        use_old_chrome_version = self.is_newer_version(latest_old_driver_version, current_chrome_version)
-
-        if use_old_chrome_version == True:
-            driver_path = ChromeDriverManager(version=current_chrome_version, path="./chromedriver").install()
-            
-            options = Options()
-            if invisible==True:
-                options.add_argument("--headless")
-            service = Service(driver_path)
-            self.driver = webdriver.Chrome(service=service, options=options)
-        else:
-            options = Options()
-            if invisible==True:
-                options.add_argument("--headless")
-            self.driver = webdriver.Chrome(options=options)
+    def call_driver(self, invisible=True):
+        driver_path = ChromeDriverManager().install()
+        
+        options = Options()
+        if invisible==True:
+            options.add_argument("--headless")
+        service = Service(driver_path)
+        self.driver = webdriver.Chrome(service=service, options=options)
 
     def extract_user_id(self, text):
 
@@ -141,13 +92,9 @@ if __name__ == "__main__":
         try:
             max_retry_num = 30
 
-            log_tk("Check chrome version...")
-            crawler = CrawlManager()
-            chrome_version = get_chrome_version()
-            log_tk("Done")
-
             log_tk("Make brower driver...")
-            crawler.call_driver(current_chrome_version=chrome_version)
+            crawler = CrawlManager()
+            crawler.call_driver(invisible=True)
             log_tk("Done")
 
             log_tk("Open query file...")
