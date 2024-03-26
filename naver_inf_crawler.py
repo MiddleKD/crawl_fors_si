@@ -9,7 +9,7 @@ from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
 
 def open_query_file(file_path):
-    with open(file_path, "r") as f:
+    with open(file_path, mode="r", encoding="utf-8") as f:
         query_list = [cur.replace("\n", "") for cur in f.readlines()]
     return query_list
 
