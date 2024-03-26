@@ -64,7 +64,7 @@ class CrawlManager:
 
         return False
     
-    def call_driver(self, current_chrome_version):
+    def call_driver(self, current_chrome_version, invisible=True):
         latest_old_driver_version = "114.0.5735.90"
         use_old_chrome_version = self.is_newer_version(latest_old_driver_version, current_chrome_version)
 
@@ -72,17 +72,19 @@ class CrawlManager:
             driver_path = ChromeDriverManager(version=current_chrome_version, path="./chromedriver").install()
             
             options = Options()
-            options.add_argument("--headless")
+            if invisible==True:
+                options.add_argument("--headless")
             service = Service(driver_path)
             self.driver = webdriver.Chrome(service=service, options=options)
         else:
             options = Options()
-            options.add_argument("--headless")
+            if invisible==True:
+                options.add_argument("--headless")
             self.driver = webdriver.Chrome(options=options)
 
     def extract_user_id(self, text):
 
-        pattern = r"https://in.naver.com/(\w+)\?"
+        pattern = r"https://in.naver.com/(\w+)/contents"
         match = re.search(pattern, text)
 
         if match:
@@ -128,7 +130,7 @@ from tkinter.scrolledtext import ScrolledText
 import threading
 
 if __name__ == "__main__":
-    user_ele_selector = "#main_pack > section.sc_new.sp_influencer._inf_content_section > div > div > div > ul > li > div > div.user_box > div.user_box_inner > div.user_info > div.user_area > a"
+    user_ele_selector = "div.detail_box > div.title_area > a"
     url_prefix = f"https://search.naver.com/search.naver?ssc=tab.influencer.chl&where=influencer&sm=tab_jum&query="
 
     def log_tk(text):
