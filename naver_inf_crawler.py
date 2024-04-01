@@ -35,7 +35,7 @@ class CrawlManager:
 
     def extract_user_id(self, text):
 
-        pattern = r"https://in.naver.com/(\w+)/contents"
+        pattern = r"https://(?:blog|in)\.naver\.com/(\w+)(?:\?|/)*"
         match = re.search(pattern, text)
 
         if match:
@@ -81,7 +81,7 @@ from tkinter.scrolledtext import ScrolledText
 import threading
 
 if __name__ == "__main__":
-    user_ele_selector = "div.detail_box > div.title_area > a"
+    user_ele_selector = "div.user_box_inner > div.user_info a"
     url_prefix = f"https://search.naver.com/search.naver?ssc=tab.influencer.chl&where=influencer&sm=tab_jum&query="
 
     def log_tk(text):
