@@ -45,7 +45,7 @@ class CrawlManager:
 
     def crawl_user_ids(self, url, user_ele_selector, max_retry_num=30):
         self.driver.get(url)
-
+        time.sleep(3)
         last_height = self.driver.execute_script("return document.body.scrollHeight")
 
         while True:
